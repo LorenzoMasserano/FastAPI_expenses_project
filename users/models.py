@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from pydantic import EmailStr
 from sqlmodel import SQLModel, Field
 
 class UserData(SQLModel, table= True):
@@ -8,5 +9,6 @@ class UserData(SQLModel, table= True):
     first_name: str
     last_name: str
     avatar_url: str | None = None
+    email: EmailStr
 
     create_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
