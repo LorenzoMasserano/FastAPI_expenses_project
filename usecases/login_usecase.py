@@ -14,10 +14,11 @@ def start_login_flow(session: Session, login_request: LoginRequest) -> TokenResp
 
     id = get_credential_id(session=session, login_request=login_request)
 
-    access_token = auth_service.generate_jwt(credential_id=id, secret_key=settings.SECRET_KEY) 
+    tokens = auth_service.generate_jwt(credential_id=id, secret_key=settings.SECRET_KEY) 
     
     return TokenResponse(
-        token= access_token
+        token= tokens[auth_service.TokenType.ACCESS],
+        refresh_token= tokens[auth_service.TokenType.REFRESH]
     )
 
 def get_credential_id(session: Session, login_request: LoginRequest) -> int: 

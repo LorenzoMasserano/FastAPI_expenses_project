@@ -6,6 +6,7 @@ from auth.schemas import LoginRequest, TokenResponse
 from database import get_session
 from usecases.login_usecase import start_login_flow
 from usecases.registration_usecase import start_registration_flow
+from usecases.refresh_token_usecase import refresh_token
 
 router = APIRouter(
     prefix="/auth",
@@ -32,4 +33,10 @@ def register_new_user(
         last_name=request.first_name, 
         first_name=request.last_name
     )
+
+@router.post("/refresh", response_model=TokenResponse)
+def refresh(
+    request: str,
+):
+    refresh_token(refresh_token=request)    
 
