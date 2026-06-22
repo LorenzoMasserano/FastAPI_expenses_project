@@ -1,4 +1,3 @@
-from typing import NoReturn
 from fastapi import HTTPException, status
 from pydantic import EmailStr
 from sqlmodel import Session
@@ -7,6 +6,7 @@ from config import settings
 
 import auth.service as auth_service
 import users.service as users_service
+from utils.errors import raise_server_error
 
 def start_registration_flow(
     session: Session,
@@ -24,11 +24,11 @@ def start_registration_flow(
 
     credential_id = auth_service.register(session=session, username=useranme, password=password).id
     if credential_id == None:
-        raise_registration_error_generic()
+        raise_server_error()
     
     new_user_data = users_service.register_user_date(session=session, credential_id=credential_id, first_name=first_name, last_name=last_name, email=email)
     if new_user_data == None: 
-        raise_registration_error_generic()
+        raise_server_error()
 
     tokens = auth_service.generate_jwt(credential_id=credential_id, secret_key=settings.SECRET_KEY) 
    
@@ -72,17 +72,6 @@ def raise_registration_error_field(
                 "loc": ["body", field_name_error],
                 "msg": error_message,
                 "input": input_value
-            }
-        ]
-    )
-
-def raise_registration_error_generic() -> NoReturn:
-    raise HTTPException(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        detail=[
-            {
-                "type": "Server Error", 
-                "msg": "Something goes wrong",
             }
         ]
     )

@@ -7,6 +7,7 @@ from database import get_session
 from usecases.login_usecase import start_login_flow
 from usecases.registration_usecase import start_registration_flow
 from usecases.refresh_token_usecase import refresh_token
+from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(
     prefix="/auth",
@@ -15,9 +16,14 @@ router = APIRouter(
 
 @router.post("/login", response_model=TokenResponse)
 def login(
-    request: LoginRequest,
-    session: Session= Depends(get_session)
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    session: Session = Depends(get_session)
 ):  
+    request = LoginRequest(
+        useranme=form_data.username,
+        password=form_data.password
+    )
+
     return start_login_flow(session=session, login_request=request)
 
 @router.post("/register", response_model=TokenResponse)

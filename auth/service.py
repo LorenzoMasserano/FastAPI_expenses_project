@@ -9,13 +9,14 @@ from sqlmodel import Session, select
 
 from .models import Credential
 from .schemas import LoginRequest
-from passlib.context import CryptContext
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated= "auto")
+from fastapi.security import OAuth2PasswordBearer
+import bcrypt
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 class TokenType(Enum):
     ACCESS="access"
@@ -41,17 +42,26 @@ def register(session: Session, username: str, password: str) -> Credential:
     session.add(new_credential)
     session.flush()
     session.refresh(new_credential)
+    session.commit()
     return new_credential
+
+def get_password_hash(password: str) -> str:
+    password_bytes = password.encode('utf-8')
+    
+    salt = bcrypt.gensalt()
+    hashed_password_bytes = bcrypt.hashpw(password_bytes, salt)
+    
+    return hashed_password_bytes.decode('utf-8')
 
 def get_user_credential_db(session:Session, login_request: LoginRequest) -> Credential | None:
     statement = select(Credential).where(Credential.username == login_request.useranme)
     return session.exec(statement).first()
 
-def verify_password(hashed_password: str, plain_password: str) -> bool: 
-    return pwd_context.verify(plain_password, hashed_password)
-
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    password_bytes = plain_password.encode('utf-8')
+    hashed_password_bytes = hashed_password.encode('utf-8')
+    
+    return bcrypt.checkpw(password_bytes, hashed_password_bytes)
 
 def generate_jwt(credential_id: int, secret_key: str, expires_delta: timedelta | None = None) -> dict:
 

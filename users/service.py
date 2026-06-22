@@ -17,6 +17,7 @@ def register_user_date(session: Session, credential_id: int, first_name: str, la
     session.add(user_data)
     session.flush()
     session.refresh(user_data)
+    session.commit()
     return user_data
  
 def is_email_already_used(session: Session, email: str) -> bool:

@@ -17,7 +17,7 @@ def start_login_flow(session: Session, login_request: LoginRequest) -> TokenResp
     tokens = auth_service.generate_jwt(credential_id=id, secret_key=settings.SECRET_KEY) 
     
     return TokenResponse(
-        token= tokens[auth_service.TokenType.ACCESS],
+        access_token= tokens[auth_service.TokenType.ACCESS],
         refresh_token= tokens[auth_service.TokenType.REFRESH]
     )
 
