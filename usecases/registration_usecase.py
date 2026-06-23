@@ -33,7 +33,7 @@ def start_registration_flow(
     tokens = auth_service.generate_jwt(credential_id=credential_id, secret_key=settings.SECRET_KEY) 
    
     return TokenResponse(
-        token= tokens[auth_service.TokenType.ACCESS],
+        access_token= tokens[auth_service.TokenType.ACCESS],
         refresh_token= tokens[auth_service.TokenType.REFRESH]
     )
     
